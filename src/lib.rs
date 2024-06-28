@@ -6,4 +6,4 @@ pub mod schema;
 pub mod handlers;
 pub mod routes;
 
-pub mod db;
+pub mod db_conn;

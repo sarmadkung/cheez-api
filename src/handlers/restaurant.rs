@@ -1,5 +1,6 @@
+use actix_web::{body, HttpResponse, Responder};
 use diesel::prelude::*;
-use crate::db::establish_connection;
+use crate::db_conn::establish_connection;
 use crate::models::restaurant::Restaurant;
 use crate::schema;
 
@@ -12,16 +13,18 @@ use crate::schema;
 //     return restaurants;  
 // }
 
-pub fn restaurants() -> Vec<Restaurant> {
+pub async fn restaurants() -> impl Responder {
     let connection = &mut establish_connection();
     let restaurants = schema::restaurants::table
         .load::<Restaurant>(connection)
         .expect("Error loading restaurants");
     println!("{:?}", restaurants);
-    return restaurants;
+    HttpResponse::Ok().json(restaurants)
 }
 
-pub fn create() {
+// create should accept post request body and insert into database
+
+pub async fn create() -> impl Responder {
     let connection = &mut establish_connection();
     let new_restaurant = Restaurant {
         id: 1,
@@ -33,7 +36,23 @@ pub fn create() {
         .values(&new_restaurant)
         .execute(connection)
         .expect("Error saving new restaurant");
+    HttpResponse::Ok().body("New restaurant added")
 }
+    // let connection = &mut establish_connection();
+    // let new_restaurant = Restaurant {
+    //     id: 1,
+    //     name: String::from("Cheez"),
+    //     location: String::from("Kathmandu"),
+    //     rating: 5,
+    // };
+    // diesel::insert_into(schema::restaurants::table)
+    //     .values(&new_restaurant)
+    //     .execute(connection)
+    //     .expect("Error saving new restaurant");
+
+    // HttpResponse::Ok().body("New restaurant created");
+    // HttpResponse::Ok().body("New restaurant created");
+// }
 pub fn update() {
     let connection = &mut establish_connection();
     let restaurant = schema::restaurants::table

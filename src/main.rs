@@ -1,13 +1,9 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
-use cheez_api::handlers::restaurant::get_all_restaurants;
-use diesel::connection;
-
-
+use cheez_api::{db_conn};
+use cheez_api::handlers::{restaurant::create, restaurant::restaurants};
 // app state
 struct AppState {
     app_name: String,
-    connection: connection::Connection,
-
 }
 
 
@@ -25,20 +21,34 @@ async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
 
+// async fn restaurants() -> impl Responder {
+    
+//     let results = handlers::restaurant::restaurants();
+//     let mut response = String::from("Restaurants: \n");
+//     for restaurant in results {
+//         response.push_str(&format!("{} - {}\n", restaurant.id, restaurant.name));
+//     }
+//     HttpResponse::Ok().body(response)
+// }
+
+
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let connection = connection::establish_connection();
+
+    let connection = &db_conn::establish_connection();
     // create app data
     let app_data = web::Data::new(AppState {
         app_name: String::from("Cheez"),
-        connection: connection,
     });
 
-    HttpServer::new(|| {
+    HttpServer::new( move || {
         App::new()
             .app_data(app_data.clone())
-            .service(web::scope("/restaurant")
-                .route("/get", web::get().to(get_all_restaurants))
+            .service(web::scope("/restaurants")
+                .route("", web::get().to(restaurants))
+                .route("/create", web::post().to(create))
             )
             .service(hello)
             .service(echo)
