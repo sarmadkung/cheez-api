@@ -13,3 +13,10 @@ pub struct Restaurant {
     pub location: String,
     pub rating: f64
 }
+
+
+#[derive(Serialize,Deserialize)]
+pub struct CreateRestaurant {
+    pub name: String,
+    pub location: String,
+}
