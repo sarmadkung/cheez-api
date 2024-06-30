@@ -1,0 +1,6 @@
+build:
+  commands:
+    - cargo build --release
+run:
+  commands: 
+    - cargo run --release

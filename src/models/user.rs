@@ -13,7 +13,7 @@ pub struct User {
     pub email: String,
     pub password: String,
 }
-#[derive(Serialize, Deserialize)]
+#[derive(Debug,Serialize, Deserialize)]
 pub struct CreateUser {
     pub first_name: String,
     pub last_name: String,
