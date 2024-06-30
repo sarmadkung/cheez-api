@@ -1,8 +1,10 @@
-use actix_web::{body, HttpResponse, Responder};
+use actix_web::{body, HttpResponse, Responder, web};
 use diesel::prelude::*;
 use crate::db_conn::establish_connection;
 use crate::models::restaurant::Restaurant;
 use crate::schema;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 // pub fn restaurants() -> Vec<Restaurant> {
 //     let connection = &mut establish_connection();
@@ -22,15 +24,23 @@ pub async fn restaurants() -> impl Responder {
     HttpResponse::Ok().json(restaurants)
 }
 
-// create should accept post request body and insert into database
 
-pub async fn create() -> impl Responder {
+#[derive(Debug, Deserialize)]
+pub struct ParseData {
+    name: String,
+    location: String,
+    rating: f64
+}
+
+pub async fn create(restaurant_data: web::Json<ParseData>) -> impl Responder {
+
     let connection = &mut establish_connection();
+    // let new_restaurant: Restaurant = serde_json::from_str(restaurant_data).unwrap();
     let new_restaurant = Restaurant {
-        id: 1,
-        name: String::from("Cheez"),
-        location: String::from("Kathmandu"),
-        rating: 5,
+        id: Uuid::new_v4(),
+        name: restaurant_data.name.clone(),
+        location: restaurant_data.location.clone(),
+        rating: restaurant_data.rating.clone(),
     };
     diesel::insert_into(schema::restaurants::table)
         .values(&new_restaurant)
@@ -38,29 +48,21 @@ pub async fn create() -> impl Responder {
         .expect("Error saving new restaurant");
     HttpResponse::Ok().body("New restaurant added")
 }
-    // let connection = &mut establish_connection();
-    // let new_restaurant = Restaurant {
-    //     id: 1,
-    //     name: String::from("Cheez"),
-    //     location: String::from("Kathmandu"),
-    //     rating: 5,
-    // };
     // diesel::insert_into(schema::restaurants::table)
     //     .values(&new_restaurant)
     //     .execute(connection)
     //     .expect("Error saving new restaurant");
 
     // HttpResponse::Ok().body("New restaurant created");
-    // HttpResponse::Ok().body("New restaurant created");
 // }
 pub fn update() {
     let connection = &mut establish_connection();
     let restaurant = schema::restaurants::table
-        .filter(schema::restaurants::id.eq(1))
+        .filter(schema::restaurants::id.eq(Uuid::new_v4()))
         .first::<Restaurant>(connection)
         .expect("Error loading restaurant");
     diesel::update(&restaurant)
-        .set(schema::restaurants::rating.eq(4))
+        .set(schema::restaurants::rating.eq(4.0))
         .execute(connection)
         .expect("Error updating restaurant");
 }

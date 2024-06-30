@@ -2,12 +2,12 @@
 
 diesel::table! {
     restaurants (id) {
-        id -> Int4,
+        id -> Uuid,
         #[max_length = 255]
         name -> Varchar,
         #[max_length = 255]
         location -> Varchar,
-        rating -> Int4,
+        rating -> Float8,
     }
 }
 
