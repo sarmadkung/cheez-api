@@ -25,7 +25,6 @@ async fn manual_hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-
     let connection = &db_conn::establish_connection();
     // create app data
     let app_data = web::Data::new(AppState {
