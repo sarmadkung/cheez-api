@@ -5,7 +5,6 @@ use diesel::prelude::*;
 use crate::db_conn::establish_connection;
 use crate::models::user::{CreateUser, User};
 use crate::schema;
-use crate::schema::users::dsl::{last_name};
 
 pub async fn users() -> impl Responder {
     let connection = &mut establish_connection();
