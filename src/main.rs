@@ -1,6 +1,9 @@
 use std::env;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use cheez_api::{db_conn, handlers::restaurant::{create, restaurants}};
+use cheez_api::handlers::user::{create_user, users};
+use cheez_api::handlers::auth::login;
+
 // app state
 struct AppState {
     app_name: String,
@@ -42,6 +45,13 @@ async fn main() -> std::io::Result<()> {
             .service(web::scope("/restaurants")
                 .route("", web::get().to(restaurants))
                 .route("/create", web::post().to(create))
+            )
+            .service(web::scope("/users")
+                .route("/create", web::post().to(create_user))
+                .route("", web::get().to(users))
+            )
+            .service(web::scope("/auth")
+                .route("/login", web::post().to(login))
             )
             .service(hello)
             .service(echo)
