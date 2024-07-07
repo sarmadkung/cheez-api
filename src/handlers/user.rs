@@ -15,7 +15,7 @@ pub async fn users() -> impl Responder {
     HttpResponse::Ok().json(users)
 }
 
-pub async fn create(user_data: web::Json<CreateUser>) -> impl Responder {
+pub async fn create_user(user_data: web::Json<CreateUser>) -> impl Responder {
     let connection = &mut establish_connection();
     let new_user = User {
         id: Uuid::new_v4(),
