@@ -11,7 +11,8 @@ pub struct Restaurant {
     pub id: Uuid,
     pub name: String,
     pub location: String,
-    pub rating: f64,
+    pub rating: Option<f64>,
+    pub user_id: Uuid,
 }
 
 

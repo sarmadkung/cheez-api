@@ -23,7 +23,8 @@ pub async fn create(restaurant_data: web::Json<CreateRestaurant>) -> impl Respon
         id: Uuid::new_v4(),
         name: restaurant_data.name.clone(),
         location: restaurant_data.location.clone(),
-        rating: 5.0,
+        user_id: Uuid::new_v4(),
+        rating: Some(5.0),
     };
     diesel::insert_into(schema::restaurants::table)
         .values(&new_restaurant)
