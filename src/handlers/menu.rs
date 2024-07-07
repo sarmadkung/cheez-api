@@ -8,11 +8,13 @@ use uuid::Uuid;
 // Get menus by restaurant id in params
 pub async fn get_menus_by_restaurant_id(restaurant_id: web::Path<Uuid>) -> impl Responder {
     let connection = &mut establish_connection();
-    let menus = schema::menu::table
-        .filter(schema::menu::restaurant_id.eq(restaurant_id.into_inner()))
-        .load::<Menu>(connection)
-        .expect("Error loading menus");
-    HttpResponse::Ok().json(menus)
+    let res = schema::menu::table
+    .filter(schema::menu::restaurant_id.eq(restaurant_id.into_inner()))
+    .load::<Menu>(connection);
+    match res {
+        Ok(menu) => HttpResponse::Ok().json(menu),
+        Err(e) => HttpResponse::InternalServerError().body(format!("Error getting menus: {:?}", e)),
+    }
 }
 
 // Create menu for restaurant
@@ -22,6 +24,7 @@ pub async fn create_menu(menu: web::Json<CreateMenu>) -> impl Responder {
     let new_menu = Menu {
         id: Uuid::new_v4(),
         name: menu.name,
+        user_id: Uuid::new_v4(),
         restaurant_id: menu.restaurant_id,
     };
     let res = diesel::insert_into(schema::menu::table)
