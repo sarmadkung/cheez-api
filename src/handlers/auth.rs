@@ -40,7 +40,12 @@ pub async fn login(user_data: web::Json<LoginUser>) -> impl Responder {
         .first::<User>(connection)
     {
         Ok(user) => match Claims::generate_token(&user) {
-            Ok(token) => HttpResponse::Ok().json(token),
+            Ok(token) => {
+                let tkn = serde_json::json!({
+                    "token": token,
+                });
+                HttpResponse::Ok().json(tkn)
+            },
             Err(_) => HttpResponse::InternalServerError().body("Failed to generate token"),
         },
         Err(diesel::result::Error::NotFound) => {
