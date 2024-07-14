@@ -36,7 +36,7 @@ async fn main() -> std::io::Result<()> {
         .expect("PORT must be set")
         .parse()
         .expect("Failed to parse PORT into u16");
-
+    
     HttpServer::new(move || {
         App::new()
             .app_data(app_data.clone())
@@ -63,7 +63,7 @@ async fn main() -> std::io::Result<()> {
             .service(echo)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(("0.0.0.0", port))?
+    .bind(("0.0.0.0", 8080))?
     .run()
     .await
 }
