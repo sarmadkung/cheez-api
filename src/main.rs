@@ -2,7 +2,7 @@ use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use cheez_api::handlers::auth::login;
 use cheez_api::handlers::menu::{create_menu, get_menus_by_restaurant_id};
 use cheez_api::handlers::user::{create_user, users};
-use cheez_api::handlers::restaurant::{create, restaurants};
+use cheez_api::handlers::restaurant::{create, restaurants,update,restaurant,delete,my_restaurants};
 
 use std::env;
 
@@ -43,7 +43,11 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/restaurants")
                     .route("", web::get().to(restaurants))
-                    .route("/create", web::post().to(create)),
+                    .route("/create", web::post().to(create))
+                    .route("/update/{id}", web::put().to(update))
+                    .route("/{id}", web::get().to(restaurant))
+                    .route("delete/{id}", web::delete().to(delete))
+                    .route("/my", web::get().to(my_restaurants)),
             )
             .service(
                 web::scope("/users")
