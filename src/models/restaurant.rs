@@ -21,3 +21,10 @@ pub struct CreateRestaurant {
     pub name: String,
     pub location: String,
 }
+
+#[derive(Debug,Serialize,Deserialize)]
+pub struct UpdateRestaurant {
+    pub id: Uuid,
+    pub name: String,
+    pub location: String,
+}
