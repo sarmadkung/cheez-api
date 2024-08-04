@@ -54,7 +54,11 @@ diesel::table! {
         #[max_length = 255]
         last_name -> Varchar,
         #[max_length = 255]
-        email -> Varchar,
+        email -> Nullable<Varchar>,
+        #[max_length = 255]
+        phone -> Nullable<Varchar>,
+        #[max_length = 255]
+        role -> Varchar,
         #[max_length = 255]
         password -> Varchar,
     }
