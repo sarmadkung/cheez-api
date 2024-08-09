@@ -32,11 +32,9 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let cors = Cors::default()
-            .allowed_origin("*")
-            .allowed_methods(vec!["GET", "POST"])
-            .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
-            .allowed_header(http::header::CONTENT_TYPE)
-            .max_age(3600);
+            .allow_any_origin() // Allow any origin to access the resources
+            .allow_any_method() // Allow any HTTP method (GET, POST, etc.)
+            .allow_any_header(); // Allow any header in the requests
 
         App::new()
             .wrap(cors)
