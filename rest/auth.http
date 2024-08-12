@@ -1,0 +1,35 @@
+@baseUrl={{BASE_URL}}
+@token={{JWT}}
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+    "email":"muhammadsarmad24@gmail.com",
+    "password":"password123"
+}
+###
+POST {{baseUrl}}/users/create
+Content-Type: application/json
+
+{
+    "first_name":"hamza",
+    "last_name": "mukhtar",
+    "phone": "000",
+    "role": "ADMIN",
+    "email":"hamzamukhtar393@gmail.com",
+    "password":"hamza111"
+}
+###
+GET {{baseUrl}}/users
+###
+PUT {{baseUrl}}/users/update/520af986-0e54-48ff-9104-d3b63048fb39
+Content-Type: application/json
+
+{
+    "first_name":"hamza",
+    "last_name": "mukhtar",
+    "phone": "000",
+    "role": "USER",
+    "email":"hamzamukhtar393@gmail.com",
+    "password":"hamza222"
+}

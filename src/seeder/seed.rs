@@ -10,18 +10,39 @@ extern crate fakeit;
 use fakeit::contact;
 use fakeit::name;
 
-const USERS_COUNT: i32 = 500;
+const USERS_COUNT: i32 = 0;
 
 pub async fn seed_users() {
     let password = hash_password("password123");
-    let users: [CreateUser; 1] = [CreateUser {
+    let password2 = hash_password("hamza123");
+    let password3 = hash_password("tiyyab123");
+
+    let users: [CreateUser; 3] = [
+    CreateUser {
         first_name: "Muhammad Sarmad".to_string(),
         last_name: "Sarmad".to_string(),
         email: Some("muhammadsarmad24@gmail.com").map(|s| s.to_string()),
         phone: Some("03421464075").map(|s| s.to_string()),
-        role: "ADMIN".to_string(),
+        role: "OWNER".to_string(),
         password,
-    }];
+    },
+    CreateUser {
+        first_name: "hamza".to_string(),
+        last_name: "mukhtar".to_string(),
+        email: Some("hamzamukhtar292@gmail.com").map(|s| s.to_string()),
+        phone: Some("03455334292").map(|s| s.to_string()),
+        role: "USER".to_string(),
+        password: password2,
+    },
+    CreateUser {
+        first_name: "tiyyab".to_string(),
+        last_name: "ali".to_string(),
+        email: Some("tiyyabali@gmail.com").map(|s| s.to_string()),
+        phone: Some("1234567890").map(|s| s.to_string()),
+        role: "ADMIN".to_string(),
+        password: password3,
+    },
+    ];
 
     for usr in users {
         match create_user(usr).await {

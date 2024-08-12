@@ -3,5 +3,11 @@
         "actix",
         "cheez",
         "dotenv"
-    ]
+    ],
+    "rest-client.environmentVariables": {
+        "$shared": {
+            "BASE_URL":"http://localhost:8080",
+            "JWT": "your-initial-jwt-token"
+        }
+    }
 }
