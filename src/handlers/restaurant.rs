@@ -1,9 +1,9 @@
-use crate::db_conn::{establish_connection, DbPool};
-use crate::models::restaurant::{CreateRestaurant, Restaurant, UpdateRestaurant};
-use crate::schema;
-use crate::services::restaurant::{create_restaurant, delete_restaurant, update_restaurant};
+use crate::db_conn::DbPool;
+use crate::models::restaurant::{CreateRestaurant, UpdateRestaurant};
+use crate::services::restaurant::{
+    create_restaurant, delete_restaurant, get_restaurant, get_restaurants, update_restaurant,
+};
 use actix_web::{web, HttpResponse, Responder};
-use diesel::prelude::*;
 use serde::Deserialize;
 use uuid::Uuid;
 
@@ -13,30 +13,33 @@ pub struct RestaurantIdRequestPath {
 }
 
 pub async fn restaurants(pool: web::Data<DbPool>) -> impl Responder {
-    let connection = &mut pool.get().expect("couldn't get db connection from pool");
-    let restaurants = schema::restaurants::table
-        .load::<Restaurant>(connection)
-        .expect("Error loading restaurants");
-    println!("{:?}", restaurants);
-    HttpResponse::Ok().json(restaurants)
+    match get_restaurants(pool).await {
+        Ok(restaurants) => HttpResponse::Ok().json(restaurants),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Error getting restaurants: {:?}", e))
+        }
+    }
 }
 
-pub async fn my_restaurants() -> impl Responder {
-    let connection = &mut establish_connection();
-    let restaurants = schema::restaurants::table
-        .filter(schema::restaurants::user_id.eq(Uuid::new_v4()))
-        .load::<Restaurant>(connection)
-        .expect("Error loading restaurants");
-    HttpResponse::Ok().json(restaurants)
+pub async fn my_restaurants(pool: web::Data<DbPool>) -> impl Responder {
+    match get_restaurants(pool).await {
+        Ok(restaurants) => HttpResponse::Ok().json(restaurants),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Error getting restaurants: {:?}", e))
+        }
+    }
 }
 
-pub async fn restaurant(path: web::Path<RestaurantIdRequestPath>) -> impl Responder {
-    let connection = &mut establish_connection();
-    let restaurant = schema::restaurants::table
-        .filter(schema::restaurants::id.eq(path.id))
-        .load::<Restaurant>(connection)
-        .expect("Error loading restaurants");
-    HttpResponse::Ok().json(restaurant)
+pub async fn restaurant(
+    pool: web::Data<DbPool>,
+    path: web::Path<RestaurantIdRequestPath>,
+) -> impl Responder {
+    match get_restaurant(pool, path.id).await {
+        Ok(restaurant) => HttpResponse::Ok().json(restaurant),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Error getting restaurant: {:?}", e))
+        }
+    }
 }
 
 pub async fn handle_create_restaurant(

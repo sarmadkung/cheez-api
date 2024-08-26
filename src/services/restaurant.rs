@@ -6,6 +6,22 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use uuid::Uuid;
 
+pub async fn get_restaurants(pool: web::Data<DbPool>) -> Result<Vec<Restaurant>, Error> {
+    let connection = &mut pool.get().expect("couldn't get db connection from pool");
+    let restaurants = schema::restaurants::table.load::<Restaurant>(connection)?;
+    Ok(restaurants)
+}
+
+pub async fn get_restaurant(
+    pool: web::Data<DbPool>,
+    restaurant_id: Uuid,
+) -> Result<Restaurant, Error> {
+    let connection = &mut pool.get().expect("couldn't get db connection from pool");
+    let restaurant = schema::restaurants::table
+        .filter(schema::restaurants::id.eq(restaurant_id))
+        .first::<Restaurant>(connection)?;
+    Ok(restaurant)
+}
 pub async fn create_restaurant(
     pool: web::Data<DbPool>,
     restaurant: CreateRestaurant,
