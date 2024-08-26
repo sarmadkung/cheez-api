@@ -1,0 +1,36 @@
+@baseUrl={{BASE_URL}}
+@token={{JWT}}
+@segmentUrl="restaurants"
+
+POST  {{baseUrl}}/{{segmentUrl}}/create
+Content-Type: application/json
+
+{
+    "name": "Foodic",
+    "location": "Village kung buddha"
+}
+###
+PUT {{baseUrl}}/{{segmentUrl}}/update/520af986-0e54-48ff-9104-d3b63048fb39
+Content-Type: application/json
+
+{
+    "name": "Foodic",
+    "location": "Village kung buddha"
+}
+###
+
+DELETE  {{baseUrl}}/{{segmentUrl}}/delete/520af986-0e54-48ff-9104-d3b63048fb39
+
+###
+
+# Get all restaurants
+GET  {{baseUrl}}/{{segmentUrl}}
+
+###
+# Get by id
+GET  {{baseUrl}}/{{segmentUrl}}/520af986-0e54-48ff-9104-d3b63048fb39
+
+###
+# get all my restaurants
+GET  {{baseUrl}}/{{segmentUrl}}/my
+
