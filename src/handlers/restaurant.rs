@@ -1,7 +1,7 @@
 use crate::db_conn::{establish_connection, DbPool};
 use crate::models::restaurant::{CreateRestaurant, Restaurant, UpdateRestaurant};
 use crate::schema;
-use crate::services::restaurant::create_restaurant;
+use crate::services::restaurant::{create_restaurant, delete_restaurant, update_restaurant};
 use actix_web::{web, HttpResponse, Responder};
 use diesel::prelude::*;
 use serde::Deserialize;
@@ -55,34 +55,27 @@ pub async fn handle_create_restaurant(
     }
 }
 
-pub async fn update(
+pub async fn handle_update(
+    pool: web::Data<DbPool>,
     path: web::Path<RestaurantIdRequestPath>,
     restaurant_data: web::Json<UpdateRestaurant>,
 ) -> impl Responder {
-    let connection = &mut establish_connection();
-    let restaurant = schema::restaurants::table
-        .filter(schema::restaurants::id.eq(path.id.clone()))
-        .first::<Restaurant>(connection)
-        .expect("Error loading restaurant");
-    diesel::update(&restaurant)
-        .set(schema::restaurants::name.eq(restaurant_data.name.clone()))
-        .execute(connection)
-        .expect("Error updating restaurant");
-    diesel::update(&restaurant)
-        .set(schema::restaurants::location.eq(restaurant_data.location.clone()))
-        .execute(connection)
-        .expect("Error updating restaurant");
-    HttpResponse::Ok().body("Restaurant updated")
+    match update_restaurant(pool, path.id, restaurant_data).await {
+        Ok(restaurant) => HttpResponse::Ok().json(restaurant),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Error updating restaurant: {:?}", e))
+        }
+    }
 }
 
-pub async fn delete(path: web::Path<RestaurantIdRequestPath>) -> impl Responder {
-    let connection = &mut establish_connection();
-    let restaurant = schema::restaurants::table
-        .filter(schema::restaurants::id.eq(path.id.clone()))
-        .first::<Restaurant>(connection)
-        .expect("Error loading restaurant");
-    diesel::delete(&restaurant)
-        .execute(connection)
-        .expect("Error deleting restaurant");
-    HttpResponse::Ok().body("Restaurant deleted")
+pub async fn handle_delete(
+    pool: web::Data<DbPool>,
+    path: web::Path<RestaurantIdRequestPath>,
+) -> impl Responder {
+    match delete_restaurant(pool, path.id).await {
+        Ok(restaurant) => HttpResponse::Ok().json(restaurant),
+        Err(e) => {
+            HttpResponse::InternalServerError().body(format!("Error deleting restaurant: {:?}", e))
+        }
+    }
 }

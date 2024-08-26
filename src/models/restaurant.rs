@@ -22,7 +22,6 @@ pub struct CreateRestaurant {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateRestaurant {
-    pub id: Uuid,
-    pub name: String,
-    pub location: String,
+    pub name: Option<String>,
+    pub location: Option<String>,
 }

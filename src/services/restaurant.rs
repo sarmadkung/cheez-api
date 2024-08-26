@@ -1,5 +1,5 @@
 use crate::db_conn::DbPool;
-use crate::models::restaurant::{CreateRestaurant, Restaurant};
+use crate::models::restaurant::{CreateRestaurant, Restaurant, UpdateRestaurant};
 use crate::schema;
 use actix_web::web;
 use diesel::prelude::*;
@@ -27,6 +27,40 @@ pub async fn create_restaurant(
         .filter(schema::restaurants::id.eq(new_restaurant.id))
         .first::<Restaurant>(connection)?;
     Ok(created_restaurant)
+}
+
+pub async fn update_restaurant(
+    pool: web::Data<DbPool>,
+    restaurant_id: Uuid,
+    restaurant_data: web::Json<UpdateRestaurant>,
+) -> Result<Restaurant, Error> {
+    let connection = &mut pool.get().expect("couldn't get db connection from pool");
+    let restaurant = schema::restaurants::table
+        .filter(schema::restaurants::id.eq(restaurant_id))
+        .first::<Restaurant>(connection)?;
+
+    if let Some(name) = restaurant_data.name.clone() {
+        diesel::update(&restaurant)
+            .set(schema::restaurants::name.eq(name))
+            .execute(connection)?;
+    }
+    if let Some(location) = restaurant_data.location.clone() {
+        diesel::update(&restaurant)
+            .set(schema::restaurants::location.eq(location))
+            .execute(connection)?;
+    }
+
+    let updated_restaurant = schema::restaurants::table
+        .filter(schema::restaurants::id.eq(restaurant_id))
+        .first::<Restaurant>(connection)?;
+    Ok(updated_restaurant)
+}
+
+pub async fn delete_restaurant(pool: web::Data<DbPool>, restaurant_id: Uuid) -> Result<(), Error> {
+    let connection = &mut pool.get().expect("couldn't get db connection from pool");
+    diesel::delete(schema::restaurants::table.filter(schema::restaurants::id.eq(restaurant_id)))
+        .execute(connection)?;
+    Ok(())
 }
 
 pub async fn delete_all_restaurants(pool: web::Data<DbPool>) -> Result<(), Error> {
