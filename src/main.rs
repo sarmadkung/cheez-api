@@ -1,5 +1,6 @@
 use actix_cors::Cors;
-use actix_web::{get, http, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use cheez_api::db_conn::{establish_connection_pool, DbPool};
 use cheez_api::routes::auth::auth_routes;
 use cheez_api::routes::menu::menu_routes;
 use cheez_api::routes::restaurant::restaurant_routes;
@@ -10,6 +11,7 @@ use std::env;
 // app state
 struct AppState {
     app_name: String,
+    pool: DbPool,
 }
 
 #[get("/")]
@@ -21,8 +23,11 @@ async fn hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
+    let pool = establish_connection_pool();
+
     let app_data = web::Data::new(AppState {
         app_name: String::from("Chez"),
+        pool: pool,
     });
 
     let port: u16 = env::var("PORT")

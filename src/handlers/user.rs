@@ -1,10 +1,9 @@
-use crate::db_conn::establish_connection;
-use crate::models::user::{CreateUser, User, UpdateUser};
+use crate::db_conn::{establish_connection, DbPool};
+use crate::models::user::{CreateUser, UpdateUser, User};
 use crate::schema;
-use crate::services::user::create_user;
+use crate::services::user::{create_user, update_user};
 use actix_web::{web, HttpResponse, Responder};
-use diesel::prelude::*;
-use diesel::{ExpressionMethods, RunQueryDsl};
+use diesel::RunQueryDsl;
 use uuid::Uuid;
 
 pub async fn users() -> impl Responder {
@@ -23,7 +22,10 @@ pub async fn users() -> impl Responder {
     HttpResponse::Ok().json(users)
 }
 
-pub async fn handle_create_user(user_data: web::Json<CreateUser>) -> impl Responder {
+pub async fn handle_create_user(
+    pool: web::Data<DbPool>,
+    user_data: web::Json<CreateUser>,
+) -> impl Responder {
     // Log the received user data
     println!("Received user data for creation: {:?}", user_data);
 
@@ -39,7 +41,7 @@ pub async fn handle_create_user(user_data: web::Json<CreateUser>) -> impl Respon
     // Log the new user data before creation
     println!("Creating new user: {:?}", new_user);
 
-    let response = match create_user(new_user).await {
+    let response = match create_user(pool, new_user).await {
         Ok(user) => {
             // Log the created user
             println!("User created successfully: {:?}", user);
@@ -55,36 +57,23 @@ pub async fn handle_create_user(user_data: web::Json<CreateUser>) -> impl Respon
     response
 }
 
-pub async fn update(
+pub async fn handle_update(
+    pool: web::Data<DbPool>,
     user_id: web::Path<Uuid>,
     user_data: web::Json<UpdateUser>,
 ) -> impl Responder {
-    let connection = &mut establish_connection();
+    let updated_user = match update_user(pool, user_data, user_id).await {
+        Ok(user) => {
+            // Log the updated user
+            println!("User updated successfully: {:?}", user);
+            HttpResponse::Ok().json(user)
+        }
+        Err(e) => {
+            // Log the error if user update fails
+            println!("Error updating user: {:?}", e);
+            HttpResponse::InternalServerError().body(format!("Error updating user: {:?}", e))
+        }
+    };
 
-    // Log the user ID for the update
-    println!("Attempting to update user with ID: {:?}", user_id);
-
-    let user = schema::users::table
-        .filter(schema::users::id.eq(user_id.into_inner())) // Convert Path to Uuid
-        .first::<User>(connection)
-        .expect("Error loading user");
-
-    // Log the user before updating
-    println!("User before update: {:?}", user);
-
-    // Update the user with the data from the request
-    diesel::update(&user)
-        .set((
-            schema::users::first_name.eq(&user_data.first_name),
-            schema::users::last_name.eq(&user_data.last_name),
-            schema::users::email.eq(&user_data.email),
-            schema::users::phone.eq(&user_data.phone),
-        ))
-        .execute(connection)
-        .expect("Error updating user");
-
-    // Log the success of the update
-    println!("User updated successfully.");
-
-    HttpResponse::Ok().body("User updated")
+    updated_user
 }

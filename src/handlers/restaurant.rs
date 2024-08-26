@@ -1,4 +1,4 @@
-use crate::db_conn::establish_connection;
+use crate::db_conn::{establish_connection, DbPool};
 use crate::models::restaurant::{CreateRestaurant, Restaurant, UpdateRestaurant};
 use crate::schema;
 use crate::services::restaurant::create_restaurant;
@@ -12,8 +12,8 @@ pub struct RestaurantIdRequestPath {
     id: Uuid,
 }
 
-pub async fn restaurants() -> impl Responder {
-    let connection = &mut establish_connection();
+pub async fn restaurants(pool: web::Data<DbPool>) -> impl Responder {
+    let connection = &mut pool.get().expect("couldn't get db connection from pool");
     let restaurants = schema::restaurants::table
         .load::<Restaurant>(connection)
         .expect("Error loading restaurants");
@@ -40,13 +40,14 @@ pub async fn restaurant(path: web::Path<RestaurantIdRequestPath>) -> impl Respon
 }
 
 pub async fn handle_create_restaurant(
+    pool: web::Data<DbPool>,
     restaurant_data: web::Json<CreateRestaurant>,
 ) -> impl Responder {
     let new_restaurant = CreateRestaurant {
         name: restaurant_data.name.clone(),
         location: restaurant_data.location.clone(),
     };
-    match create_restaurant(new_restaurant, Uuid::new_v4()).await {
+    match create_restaurant(pool, new_restaurant, Uuid::new_v4()).await {
         Ok(restaurant) => HttpResponse::Ok().json(restaurant),
         Err(e) => {
             HttpResponse::InternalServerError().body(format!("Error creating restaurant: {:?}", e))
