@@ -2,7 +2,8 @@
 use actix_web::web;
 
 use crate::handlers::restaurant::{
-    delete, handle_create_restaurant, my_restaurants, restaurant, restaurants, update,
+    handle_create_restaurant, handle_delete, handle_update_restaurant, my_restaurants, restaurant,
+    restaurants,
 };
 
 pub fn restaurant_routes(cfg: &mut web::ServiceConfig) {
@@ -10,9 +11,9 @@ pub fn restaurant_routes(cfg: &mut web::ServiceConfig) {
         web::scope("/restaurants")
             .route("", web::get().to(restaurants))
             .route("/create", web::post().to(handle_create_restaurant))
-            .route("/update/{id}", web::put().to(update))
+            .route("/update/{id}", web::put().to(handle_update_restaurant))
             .route("/{id}", web::get().to(restaurant))
-            .route("delete/{id}", web::delete().to(delete))
+            .route("delete/{id}", web::delete().to(handle_delete))
             .route("/my", web::get().to(my_restaurants)),
     );
 }

@@ -58,7 +58,7 @@ pub async fn handle_create_restaurant(
     }
 }
 
-pub async fn handle_update(
+pub async fn handle_update_restaurant(
     pool: web::Data<DbPool>,
     path: web::Path<RestaurantIdRequestPath>,
     restaurant_data: web::Json<UpdateRestaurant>,
