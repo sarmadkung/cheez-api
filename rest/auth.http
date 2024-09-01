@@ -10,6 +10,7 @@ Content-Type: application/json
 ###
 POST {{baseUrl}}/users/create
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
     "first_name":"hamza",

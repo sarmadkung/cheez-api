@@ -24,12 +24,9 @@ async fn hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
-    let pool = establish_connection_pool();
+    let connection_pool = establish_connection_pool();
 
-    let app_data = web::Data::new(AppState {
-        app_name: String::from("Chez"),
-        pool: pool,
-    });
+    let pool = web::Data::new(connection_pool);
 
     let port: u16 = env::var("PORT")
         .expect("PORT must be set")
@@ -45,7 +42,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .wrap(cors)
             .wrap(AuthMiddleware)
-            .app_data(app_data.clone())
+            .app_data(pool.clone())
             .configure(restaurant_routes)
             .configure(user_routes)
             .configure(auth_routes)

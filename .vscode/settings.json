@@ -7,7 +7,7 @@
     "rest-client.environmentVariables": {
         "$shared": {
             "BASE_URL":"http://localhost:8080",
-            "JWT": "your-initial-jwt-token"
+            "JWT": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI5M2EwZmUxNy0yMDMwLTRhYWYtOGM5NC1iNjEyZWM1MGFmMDciLCJleHAiOjE3MjUyOTg3Njd9.phsKN-etgDrRVN5nLNmUGl2EU0PjES49yF0dMnycEB4"
         }
     }
 }

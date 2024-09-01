@@ -1,10 +1,10 @@
+use crate::models::user::User;
 use bcrypt::{hash, verify, DEFAULT_COST};
+use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{encode, DecodingKey, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use std::env;
-
-use crate::models::user::User;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JWTClaims {
@@ -14,16 +14,21 @@ pub struct JWTClaims {
 
 impl JWTClaims {
     pub fn generate_token(user: &User) -> Result<String, jsonwebtoken::errors::Error> {
-        let expiration = 1720477487;
-
-        let claims = JWTClaims {
-            sub: user.id.to_string(),
-            exp: expiration,
-        };
         dotenv().ok();
+        let jwt_exp: i64 = env::var("JWT_EXP")
+            .expect("JWT_EXP must be set")
+            .parse()
+            .unwrap();
 
         // Example secret key (replace with your secure secret)
         let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+
+        let expiration = Utc::now() + Duration::days(jwt_exp);
+
+        let claims = JWTClaims {
+            sub: user.id.to_string(),
+            exp: expiration.timestamp() as usize,
+        };
 
         // Encode the JWT token
         let token = encode(

@@ -71,6 +71,7 @@ where
             Box::pin(async move {
                 if let Some(jwt_token) = jwt_token {
                     // Validate JWT token (pseudo-code)
+                    println!("JWT token: {:?}", jwt_token.clone());
                     match JWTClaims::decode_token(&jwt_token) {
                         Ok(_) => {
                             // Token is valid; proceed with the original service call
