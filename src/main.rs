@@ -1,6 +1,7 @@
 use actix_cors::Cors;
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use cheez_api::db_conn::{establish_connection_pool, DbPool};
+use cheez_api::middlewares::auth::AuthMiddleware;
 use cheez_api::routes::auth::auth_routes;
 use cheez_api::routes::menu::menu_routes;
 use cheez_api::routes::restaurant::restaurant_routes;
@@ -43,6 +44,7 @@ async fn main() -> std::io::Result<()> {
 
         App::new()
             .wrap(cors)
+            .wrap(AuthMiddleware)
             .app_data(app_data.clone())
             .configure(restaurant_routes)
             .configure(user_routes)

@@ -26,6 +26,8 @@ diesel-derive-newtype = "2.1.2"
 geo = "0.28.0"
 geo-types = "0.7.13"
 r2d2 = "0.8.10"
+futures-util = "0.3.30"
+log = "0.4.22"
 
 
 [[bin]]
